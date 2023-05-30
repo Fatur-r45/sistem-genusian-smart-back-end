@@ -20,6 +20,9 @@ const Users = db.define(
     refresh_token: {
       type: DataTypes.TEXT,
     },
+    reset_password: {
+      type: DataTypes.STRING,
+    },
   },
   {
     freezeTableName: true,

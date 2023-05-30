@@ -1,5 +1,12 @@
 import express from "express";
-import { getUsers, Register, Login, Logout } from "../controller/Users.js";
+import {
+  getUsers,
+  Register,
+  Login,
+  Logout,
+  linkResetPassword,
+  resetPassword,
+} from "../controller/Users.js";
 import {
   getMahasiswa,
   getMahasiswaByNim,
@@ -36,6 +43,8 @@ import {
   postPendidikan,
   putPendidikan,
 } from "../controller/Pendidikan.js";
+import { getNotifikasiByNim } from "../controller/Notifikasi.js";
+import { getJenisSertifikat } from "../controller/JenisSertifikat.js";
 
 const router = express.Router();
 
@@ -44,6 +53,8 @@ router.post("/users", Register);
 router.post("/login", Login);
 router.get("/token", refreshToken);
 router.delete("/logout", Logout);
+router.put("/forgotPassword", linkResetPassword);
+router.put("/resetPassword/:token", resetPassword);
 
 // ==================================================
 
@@ -78,5 +89,11 @@ router.get("/pendidikan/id/:id", getPendidikanById);
 router.post("/pendidikan/:nim", postPendidikan);
 router.put("/pendidikan/:id", putPendidikan);
 router.delete("/pendidikan/:id", deletPendidikan);
+
+// ==================================================
+router.get("/notifikasi/:nim", getNotifikasiByNim);
+
+// ==================================================
+router.get("/jenis_sertifikat", getJenisSertifikat);
 
 export default router;

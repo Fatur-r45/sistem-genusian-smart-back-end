@@ -5,16 +5,15 @@ import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import router from "./routes/index.js";
-// import Sertifikat from "./model/SertifikatModel.js";
-// import Pengalaman from "./model/PengalamanModel.js";
-// import Pendidikan from "./model/PendidikanModel.js";
+// import Notifikasi from "./model/NotifikasiModel.js";
+import JenisSertifikat from "./model/JenisSertifikatModel.js";
 dotenv.config();
 const app = express();
 
 try {
   await db.authenticate();
   // console.log("Database Conected");
-  // await Pendidikan.sync();
+  await JenisSertifikat.sync();
 } catch (error) {
   console.log(error);
 }

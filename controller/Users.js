@@ -1,6 +1,7 @@
 import Users from "../model/UserModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { kirimEmail } from "../helpers/index.js";
 
 export const getUsers = async (req, res) => {
   try {
@@ -101,4 +102,79 @@ export const Logout = async (req, res) => {
   );
   res.clearCookie("refreshToken");
   return res.sendStatus(200);
+};
+
+export const linkResetPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await Users.findAll({
+      where: {
+        email: email,
+      },
+    });
+    if (!user[0])
+      return res.status(400).json({ message: "email tidak ditemukan" });
+    const token = jwt.sign(
+      {
+        iduser: user[0].id,
+      },
+      process.env.RESSET_PASSWORD,
+      {
+        expiresIn: "5m",
+      }
+    );
+    await Users.update(
+      {
+        reset_password: token,
+      },
+      {
+        where: {
+          id: user[0].id,
+        },
+      }
+    );
+    const template = {
+      from: "ADMIN NUSAPUTRA",
+      to: email,
+      subject: "Link Reset Password",
+      html: `<p>silahkan klik link dibawah ini untuk reset password anda</p> <p>${process.env.CLIENT_URL}/reset_password/${token}</p> <p>dan ini adalah token reset anda: ${token}</p>`,
+    };
+    kirimEmail(template);
+    return res.status(200).json({
+      message: "link reset sudah terkirim",
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+    });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const token = req.params.token;
+  const { password, confPassword } = req.body;
+  try {
+    if (password !== confPassword) {
+      return res
+        .status(400)
+        .json({ msg: "password dan confirm password tidak cocok" });
+    }
+    const salt = await bcrypt.genSalt();
+    const hashPassword = await bcrypt.hash(password, salt);
+    const user = await Users.findOne({ where: { reset_password: token } });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ error: "token tidak ditemukan/kadaluarsa" });
+    }
+    user.password = hashPassword;
+    await user.save();
+    return res.status(200).json({
+      message: "password berhasil diubah",
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: error.message,
+    });
+  }
 };
