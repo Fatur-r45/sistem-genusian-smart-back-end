@@ -36,7 +36,7 @@ export const getSertifikat = async (req, res) => {
 
 export const postSertifikat = async (req, res) => {
   if (req.file && req.file.path) {
-    const { title, nama_acara, keterangan, tanggal_dapat } = req.body;
+    const { title, nama_acara, keterangan, tanggal_dapat, point } = req.body;
     const pdf = req.file.path;
     const kd_sertifikat = req.params.nim;
     if (
@@ -53,7 +53,7 @@ export const postSertifikat = async (req, res) => {
     try {
       await Mahasiswa.update(
         {
-          point: 10,
+          point: point,
         },
         {
           where: {
